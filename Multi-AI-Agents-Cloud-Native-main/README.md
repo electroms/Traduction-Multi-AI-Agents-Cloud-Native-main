@@ -34,7 +34,7 @@ Les systèmes multi-agents représentent l'évolution suivante des applications 
 
 ## Structure du Dépôt
 
-```
+```text
 Multi-AI-Agents-Cloud-Native/
 ├── README.md
 └── code/
@@ -56,7 +56,7 @@ Un système d'orchestration multi-agent complet exploitant le **Protocole A2A** 
 #### Fonctionnalités Clés
 
 | Fonctionnalité | Description |
-|----------------|-------------|
+| --- | --- |
 | **Agent de Blog** | Génère des articles de blog techniques avec intégration DeepSearch |
 | **Agent PPT** | Crée des présentations professionnelles avec des exemples de code |
 | **Orchestrateur** | Route intelligemment les tâches utilisant Microsoft Agent Framework |
@@ -77,22 +77,22 @@ Un système d'orchestration multi-agent complet exploitant le **Protocole A2A** 
 - Azure Container Apps & Azure Container Registry
 - Conteneurisation Docker
 
-#### Démarrage Rapide
+#### Démarrage Rapide A2A
 
 ```bash
-cd code/GitHubCopilotAgents_A2A
+cd code/GitHubCopilotAgents_A2A/code/app
 
-# Démarrer l'Agent de Blog
+# Démarrer l'Agent de Blog (port 8001)
 cd gh-copilot-multi-agents/gh-cli-blog-agent
 pip install -r requirements.txt
 python main.py
 
-# Démarrer l'Agent PPT (nouveau terminal)
+# Démarrer l'Agent PPT, port 8002 (nouveau terminal, depuis code/GitHubCopilotAgents_A2A/code/app)
 cd gh-copilot-multi-agents/gh-cli-ppt-agent
 pip install -r requirements.txt
 python main.py
 
-# Démarrer l'Orchestrateur (nouveau terminal)
+# Démarrer l'Orchestrateur (nouveau terminal, depuis code/GitHubCopilotAgents_A2A/code/app)
 cd multi-agents-orchestrations/gh-copilot-a2a-orchestration
 python main.py
 ```
@@ -107,33 +107,33 @@ python main.py
 
 Un agent de génération de blog IA natif Kubernetes utilisant le **Modèle Dual-Sidecar**, déployant trois conteneurs dans un seul Pod pour la séparation des préoccupations et la collaboration par volume partagé.
 
-#### Architecture
+#### Architecture du Pod
 
 | Conteneur | Rôle | Port |
-|-----------|------|------|
+| --- | --- | --- |
 | **blog-app** (Principal) | Visionneuse web Nginx + proxy inverse | 80 |
 | **copilot-agent** (Sidecar 1) | FastAPI + SDK GitHub Copilot pour génération de blog IA | 8001 |
 | **skill-server** (Sidecar 2) | Gestion des compétences FastAPI, sert SKILL.md via ConfigMap | 8002 |
 
-#### Fonctionnalités Clés
+#### Fonctionnalités Clés du Sidecar
 
 | Fonctionnalité | Description |
-|----------------|-------------|
+| --- | --- |
 | **Modèle Dual-Sidecar** | Trois conteneurs dans un Pod — app principale, agent IA et serveur de compétences |
 | **Collaboration par Volume Partagé** | Volumes `emptyDir` pour les données de blog et le partage de compétences entre conteneurs |
 | **Compétences Pilotées par ConfigMap** | Comportement de l'agent défini dans ConfigMap Kubernetes, rechargable à chaud sans reconstruction |
 | **SDK GitHub Copilot** | Génération de blog alimentée par IA avec intégration DeepSearch |
 | **Proxy Inverse** | Nginx route `/agent/` et `/skill/` vers les sidecars via localhost |
 
-#### Flux de Données
+#### Flux de Données du Sidecar
 
-```
+```text
 ConfigMap (SKILL.md) → Serveur de Compétences synchronise vers volume partagé
     → Agent Copilot lit les compétences & génère le blog
     → Écrit dans volume partagé → Nginx sert le contenu
 ```
 
-#### Technologies Utilisées
+#### Technologies Utilisées par le Sidecar
 
 - Python 3.12+ avec FastAPI
 - SDK GitHub Copilot + Node.js 20
@@ -141,7 +141,7 @@ ConfigMap (SKILL.md) → Serveur de Compétences synchronise vers volume partag�
 - Proxy inverse Nginx
 - Pod multi-conteneurs Docker
 
-#### Démarrage Rapide
+#### Démarrage Rapide du Sidecar
 
 ```bash
 cd code/GitHubCopilotSideCar/code/gh-cli-blog-agent
@@ -164,7 +164,7 @@ curl -X POST http://localhost:8080/agent/task \
 curl http://localhost:8080/blog/
 ```
 
-👉 [Voir la Documentation Complète](./code/GitHubCopilotSideCar/code/README.md)
+👉 [Voir la Documentation Complète](./code/GitHubCopilotSideCar/README.md)
 
 ---
 
@@ -174,20 +174,20 @@ curl http://localhost:8080/blog/
 
 Un pipeline entièrement automatisé de génération de podcast IA avec une architecture Docker Compose **durcie en 5 couches de sécurité**. Combine la **Passerelle OpenClaw** pour l'orchestration d'agents IA, **SerpAPI DeepSearch** pour l'exploration de tendances en temps réel, et **Ollama** pour la génération de dialogue LLM local — tout fonctionnant à l'intérieur de conteneurs durcis avec des contrôles de sécurité en profondeur.
 
-#### Architecture
+#### Architecture des Conteneurs
 
 | Conteneur | Rôle | Couche de Sécurité |
-|-----------|------|-------------------|
+| --- | --- | --- |
 | **secrets-init** | Rotation des jetons au démarrage, volume secrets tmpfs, audit inotifywait | Couche 0 |
 | **dns-audit** | Sidecar DNS Unbound, toutes les requêtes journalisées, upstream Cloudflare DoT | Couche 1 |
 | **openclaw** | Passerelle d'agents IA avec profil seccomp, cap_drop ALL, liste d'autorisation des outils | Couches 2–5 |
 | **ollama** | Inférence LLM locale (Qwen3-0.6B) | Sécurité héritée |
 | **podcast-app** | Pipeline automatisé : exploration tendances → recherche web → génération dialogue LLM → sortie TXT | Sécurité héritée |
 
-#### Fonctionnalités Clés
+#### Fonctionnalités Clés d'OpenClaw
 
 | Fonctionnalité | Description |
-|----------------|-------------|
+| --- | --- |
 | **Défense en 5 Couches** | Rotation des secrets, audit DNS, profils seccomp, journalisation egress nftables, liste d'autorisation des outils |
 | **Pipeline Automatisé** | De bout en bout : exploration des tendances → recherche web → génération de dialogue LLM → sortie TXT |
 | **OpenClaw TrendScout** | Agent IA utilise des outils `web_search` pour découvrir des sujets tendance IA/tech en temps réel |
@@ -199,7 +199,7 @@ Un pipeline entièrement automatisé de génération de podcast IA avec une arch
 
 #### Architecture de Sécurité
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │  Hôte (journalisation egress nftables, IMDS bloqué)         │
 │                                                             │
@@ -217,16 +217,16 @@ Un pipeline entièrement automatisé de génération de podcast IA avec une arch
 └─────────────────────────────────────────────────────────────┘
 ```
 
-#### Flux de Données
+#### Flux de Données d'OpenClaw
 
-```
+```text
 secrets-init (rotation jeton) → Passerelle OpenClaw (authentifie)
     → Agent TrendScout (web_search via SerpAPI) → découvre sujets tendance
     → DeepSearch (scrape & résume sources) → construit base connaissances
     → LLM Ollama (génère dialogue podcast) → sortie TXT
 ```
 
-#### Technologies Utilisées
+#### Technologies Utilisées par OpenClaw
 
 - Python 3.11 avec pipeline d'orchestration automatisé
 - Passerelle OpenClaw pour la gestion d'agents IA
@@ -236,7 +236,7 @@ secrets-init (rotation jeton) → Passerelle OpenClaw (authentifie)
 - Unbound DNS pour l'audit des requêtes
 - Profils seccomp personnalisés pour le filtrage des appels système
 
-#### Démarrage Rapide
+#### Démarrage Rapide d'OpenClaw
 
 ```bash
 cd code/openclaw_security/code
@@ -285,7 +285,7 @@ Avant d'exécuter tout exemple, assurez-vous d'avoir :
 ## Services Azure Utilisés
 
 | Service | Objectif |
-|---------|----------|
+| --- | --- |
 | **Azure Container Apps** | Hébergement de conteneurs serverless pour les agents |
 | **Azure Kubernetes Service (AKS)** | Kubernetes géré pour les déploiements de modèle Sidecar |
 | **Azure Container Registry** | Stockage d'images Docker privées |
@@ -325,7 +325,7 @@ Les contributions sont les bienvenues ! Si vous avez un exemple multi-agent à a
 
 ## Licence
 
-Ce projet est open source et disponible sous la [Licence MIT](LICENSE).
+Ce projet est open source et disponible sous la Licence MIT.
 
 ## Auteur
 
