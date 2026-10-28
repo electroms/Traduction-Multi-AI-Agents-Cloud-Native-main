@@ -31,16 +31,11 @@ NETWORK_NAME="ai-podcast-v2_podcast-net"   # nom du réseau docker (depuis docke
 
 # ── Fonctions utilitaires ────────────────────────────────────────
 get_bridge_iface() {
-  # Essayez de récupérer le nom exact de l'interface du réseau docker
-  local net_id
-  net_id=$(docker network inspect "$NETWORK_NAME" --format '{{.Id}}' 2>/dev/null || \
-           docker network ls --filter name=podcast-net -q 2>/dev/null | head -1)
-  if [ -n "$net_id" ]; then
-    echo "br-${net_id:0:12}"
-  else
-    # repli : scanner les interfaces br- existantes
-    ip link show | grep -oP 'br-[a-f0-9]{12}' | head -1 || echo "docker0"
-  fi
+  # Le nom du bridge est fixé dans docker-compose.yml (com.docker.network.bridge.name)
+  local name
+  name=$(docker network inspect "$NETWORK_NAME" \
+    --format '{{index .Options "com.docker.network.bridge.name"}}' 2>/dev/null || true)
+  echo "${name:-br-podcast}"
 }
 
 cmd_setup() {
@@ -59,19 +54,18 @@ cmd_setup() {
     nft add chain inet "$TABLE" "$CHAIN" \
       '{ type filter hook forward priority 10; policy accept; }'
 
-    # Règle 1 : journaliser toutes les nouvelles connexions depuis le réseau podcast
-    nft add rule inet "$TABLE" "$CHAIN" \
-      iifname "$iface" ct state new \
-      log prefix "\"${LOG_PREFIX}\"" \
-      accept
-
-    # Règle 2 : bloquer l'accès au daemon Docker de l'hôte (prévenir l'évasion de conteneur)
+    # Règle 1 : bloquer l'accès au daemon Docker de l'hôte (prévenir l'évasion de conteneur)
     nft add rule inet "$TABLE" "$CHAIN" \
       iifname "$iface" ip daddr 172.17.0.1 tcp dport 2376 drop
 
-    # Règle 3 : bloquer les services metadata cloud (IMDS AWS/GCP/Azure, vol de credentials)
+    # Règle 2 : bloquer les services metadata cloud (IMDS AWS/GCP/Azure, vol de credentials)
     nft add rule inet "$TABLE" "$CHAIN" \
       iifname "$iface" ip daddr 169.254.169.254 drop
+
+    # Règle 3 : journaliser les nouvelles connexions (sans verdict, après les blocages)
+    nft add rule inet "$TABLE" "$CHAIN" \
+      iifname "$iface" ct state new \
+      log prefix "\"${LOG_PREFIX}\""
 
     echo "[egress-monitor] ✓ règles nftables installées"
     nft list table inet "$TABLE"

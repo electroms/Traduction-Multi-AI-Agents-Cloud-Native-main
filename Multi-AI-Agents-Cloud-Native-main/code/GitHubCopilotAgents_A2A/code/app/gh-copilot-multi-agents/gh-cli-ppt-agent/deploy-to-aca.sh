@@ -69,6 +69,10 @@ az containerapp env create \
 # Step 5: Deploy Container App with secret
 echo ""
 echo "Step 5: Deploying Container App with COPILOT_GITHUB_TOKEN secret..."
+# Clé API protégeant les endpoints de l'agent (générée si absente)
+AGENT_API_KEY=${AGENT_API_KEY:-$(openssl rand -hex 32)}
+export AGENT_API_KEY
+
 az containerapp create \
   --name $APP_NAME \
   --resource-group $RESOURCE_GROUP \
@@ -83,8 +87,8 @@ az containerapp create \
   --memory 2Gi \
   --min-replicas 1 \
   --max-replicas 3 \
-  --secrets "copilot-github-token=$COPILOT_GITHUB_TOKEN" \
-  --env-vars "COPILOT_GITHUB_TOKEN=secretref:copilot-github-token" "AGENT_PORT=8002" \
+  --secrets "copilot-github-token=$COPILOT_GITHUB_TOKEN" "agent-api-key=$AGENT_API_KEY" \
+  --env-vars "COPILOT_GITHUB_TOKEN=secretref:copilot-github-token" "AGENT_API_KEY=secretref:agent-api-key" "AGENT_PORT=8002" \
   -o table
 
 # Get the FQDN of the deployed app

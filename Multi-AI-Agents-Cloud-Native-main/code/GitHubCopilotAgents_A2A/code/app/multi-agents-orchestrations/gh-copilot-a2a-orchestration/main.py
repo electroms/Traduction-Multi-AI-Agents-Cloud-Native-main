@@ -39,6 +39,9 @@ from agent_framework.a2a import A2AAgent
 # Charger les variables d'environnement depuis le fichier .env
 load_dotenv()
 
+# En-tête d'authentification envoyé aux agents lorsque AGENT_API_KEY est défini
+AGENT_AUTH_HEADERS = {"X-API-Key": os.environ["AGENT_API_KEY"]} if os.getenv("AGENT_API_KEY") else {}
+
 # Configuration du logging
 logging.basicConfig(
     level=logging.INFO,
@@ -372,7 +375,7 @@ async def main():
     print()
     
     # Create HTTP client with extended timeout for long-running tasks (10 minutes)
-    async with httpx.AsyncClient(timeout=httpx.Timeout(600.0, connect=30.0)) as http_client:
+    async with httpx.AsyncClient(timeout=httpx.Timeout(600.0, connect=30.0), headers=AGENT_AUTH_HEADERS) as http_client:
         
         # Initialize orchestrator
         orchestrator = MultiAgentOrchestrator(http_client)
@@ -471,7 +474,7 @@ async def interactive_mode():
     print("🤖 Multi-Agent Orchestration - Interactive Mode")
     print("=" * 60)
     
-    async with httpx.AsyncClient(timeout=httpx.Timeout(600.0, connect=30.0)) as http_client:
+    async with httpx.AsyncClient(timeout=httpx.Timeout(600.0, connect=30.0), headers=AGENT_AUTH_HEADERS) as http_client:
         orchestrator = MultiAgentOrchestrator(http_client)
         
         print("🔍 Discovering agents...")
