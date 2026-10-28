@@ -21,7 +21,18 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Depends
+import hmac
+
+
+async def verify_api_key(request: Request):
+    """Exige l'en-tête X-API-Key lorsque AGENT_API_KEY est défini."""
+    expected = os.getenv("AGENT_API_KEY")
+    if not expected:
+        return
+    provided = request.headers.get("X-API-Key", "")
+    if not hmac.compare_digest(provided.encode(), expected.encode()):
+        raise HTTPException(status_code=401, detail="Clé API invalide ou manquante")
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -424,7 +435,7 @@ async def generate_sse_response(jsonrpc: str, request_id: str, task_id: str, con
     yield f"data: {json.dumps(complete_event)}\n\n"
 
 
-@app.post("/")
+@app.post("/", dependencies=[Depends(verify_api_key)])
 async def a2a_jsonrpc_endpoint(request: Request):
     """
     A2A Protocol JSON-RPC 2.0 Endpoint with SSE Streaming
@@ -608,7 +619,7 @@ async def list_blogs():
         raise HTTPException(status_code=500, detail=f"Error listing blogs: {str(e)}")
 
 
-@app.post("/task", response_model=TaskResponse)
+@app.post("/task", response_model=TaskResponse, dependencies=[Depends(verify_api_key)])
 async def execute_task(request: TaskRequest):
     """
     Execute a blog generation task
@@ -764,6 +775,8 @@ async def agent_card():
         },
         
         # Provider information
+        # Auteur d'origine : Kinfey Lo
+        # Traduction française, sécurité et conformité : Pierre-Henry ELECTROMS Barge (https://github.com/electroms)
         "provider": {
             "organization": "Kinfey Lo",
             "url": "https://github.com/kinfey"

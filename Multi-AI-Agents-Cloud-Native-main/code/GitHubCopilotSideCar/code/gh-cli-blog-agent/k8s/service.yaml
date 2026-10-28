@@ -5,7 +5,7 @@ metadata:
   labels:
     app: blog-agent
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: blog-agent
   ports:
@@ -13,14 +13,11 @@ spec:
     - name: http
       port: 80
       targetPort: 80
-      nodePort: 30081
-    # Sidecar 1 (Copilot Agent) - direct agent API access
+    # Sidecar 1 (Copilot Agent) - accessible uniquement dans le cluster / via port-forward
     - name: agent-api
       port: 8001
       targetPort: 8001
-      nodePort: 30082
-    # Sidecar 2 (Skill Server) - direct skill API access
+    # Sidecar 2 (Skill Server) - accessible uniquement dans le cluster / via port-forward
     - name: skill-api
       port: 8002
       targetPort: 8002
-      nodePort: 30083

@@ -23,7 +23,7 @@
 ┌─────────────────────────────────────────────────────────────┐
 │  Hôte                                                        │
 │  nftables: iifname "br-podcast" ct state new log           │
-│            prefix "podcast-egress: " accept                 │
+│            prefix "podcast-egress: " (après les blocages)  │
 │                                                             │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐  │
 │  │ secrets-init │  │  dns-audit   │  │     openclaw     │  │

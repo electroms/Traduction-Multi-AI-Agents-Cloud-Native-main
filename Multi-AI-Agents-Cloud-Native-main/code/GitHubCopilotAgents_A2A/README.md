@@ -76,9 +76,11 @@ Créez un fichier `.env` dans chaque répertoire de composant :
 # Pour les Agents
 COPILOT_GITHUB_TOKEN=votre_jeton_github_copilot
 AGENT_PORT=8001  # ou 8002 pour l'Agent PPT
+AGENT_API_KEY=votre_cle_api  # optionnel : si défini, POST / et POST /task exigent l'en-tête X-API-Key
 
 # Pour l'Orchestrateur
 A2A_AGENT_HOST=https://blog-agent.example.com,https://ppt-agent.example.com
+AGENT_API_KEY=votre_cle_api  # même valeur que les agents ; envoyée dans l'en-tête X-API-Key
 ```
 
 ---
@@ -340,4 +342,8 @@ Ce projet fait partie du dépôt [Multi-AI-Agents-Cloud-Native](https://github.c
 
 ## Auteur
 
-**Kinfey Lo** - [GitHub](https://github.com/kinfey)
+**Kinfey Lo** - [GitHub](https://github.com/kinfey) (auteur d'origine)
+
+## Contributeur
+
+**Pierre-Henry ELECTROMS Barge** - [GitHub](https://github.com/electroms) : traduction française du projet, maintien en sécurité et en conformité.
