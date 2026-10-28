@@ -764,6 +764,8 @@ async def agent_card():
         },
         
         # Provider information
+        # Auteur d'origine : Kinfey Lo
+        # Traduction française, sécurité et conformité : Pierre-Henry ELECTROMS Barge (https://github.com/electroms)
         "provider": {
             "organization": "Kinfey Lo",
             "url": "https://github.com/kinfey"

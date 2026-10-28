@@ -1,14 +1,14 @@
-"""Agent PPT - Service de génération PPT avec GitHub Copilot SDK
+"""Agent PPT - Service de gï¿½nï¿½ration PPT avec GitHub Copilot SDK
 
-Cet agent offre des capacités de génération de PPT en intégrant :
-- GitHub Copilot SDK pour génération de contenu IA
-- Compétence PPT pour création de présentations
-- Endpoints FastAPI pour compatibilité protocole A2A
+Cet agent offre des capacitï¿½s de gï¿½nï¿½ration de PPT en intï¿½grant :
+- GitHub Copilot SDK pour gï¿½nï¿½ration de contenu IA
+- Compï¿½tence PPT pour crï¿½ation de prï¿½sentations
+- Endpoints FastAPI pour compatibilitï¿½ protocole A2A
 
 Architecture :
 - Utilise CopilotClient du SDK GitHub Copilot
-- Expose des endpoints A2A pour découverte
-- Peut être appelé par orchestrateur ou autres agents
+- Expose des endpoints A2A pour dï¿½couverte
+- Peut ï¿½tre appelï¿½ par orchestrateur ou autres agents
 """
 
 import os
@@ -51,19 +51,19 @@ current_session = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Cycle de vie de l'application - initialisation du client Copilot au démarrage."""
+    """Cycle de vie de l'application - initialisation du client Copilot au dï¿½marrage."""
     global copilot_client, PPT_DIR
 
-    logger.info("?? Démarrage de l'agent PPT...")
-    logger.info(f"Répertoire de travail: {WORK_DIR}")
-    logger.info(f"Répertoire des compétences: {SKILLS_DIR}")
-    logger.info(f"Répertoire PPT: {PPT_DIR}")
+    logger.info("?? Dï¿½marrage de l'agent PPT...")
+    logger.info(f"Rï¿½pertoire de travail: {WORK_DIR}")
+    logger.info(f"Rï¿½pertoire des compï¿½tences: {SKILLS_DIR}")
+    logger.info(f"Rï¿½pertoire PPT: {PPT_DIR}")
 
     try:
-        # Vérifie et crée le dossier ppt si nécessaire
+        # Vï¿½rifie et crï¿½e le dossier ppt si nï¿½cessaire
         if not os.path.exists(PPT_DIR):
             os.makedirs(PPT_DIR)
-            logger.info(f"? Dossier ppt créé: {PPT_DIR}")
+            logger.info(f"? Dossier ppt crï¿½ï¿½: {PPT_DIR}")
         else:
             logger.info(f"? Dossier ppt existant: {PPT_DIR}")
 
@@ -71,16 +71,16 @@ async def lifespan(app: FastAPI):
         copilot_client = CopilotClient()
         await copilot_client.start()
 
-        logger.info("? Agent PPT initialisé avec succès")
+        logger.info("? Agent PPT initialisï¿½ avec succï¿½s")
 
     except Exception as e:
-        logger.error(f"? Échec de l'initialisation de l'agent PPT : {e}")
+        logger.error(f"? ï¿½chec de l'initialisation de l'agent PPT : {e}")
         raise
 
     yield
 
-    # Nettoyage à l'arrêt
-    logger.info("?? Arrêt de l'agent PPT...")
+    # Nettoyage ï¿½ l'arrï¿½t
+    logger.info("?? Arrï¿½t de l'agent PPT...")
     if copilot_client:
         await copilot_client.stop()
 
@@ -88,27 +88,27 @@ async def lifespan(app: FastAPI):
 # Application FastAPI
 app = FastAPI(
     title="PPT Agent",
-    description="Agent de génération de PPT basé sur GitHub Copilot SDK",
+    description="Agent de gï¿½nï¿½ration de PPT basï¿½ sur GitHub Copilot SDK",
     version="1.0.0",
     lifespan=lifespan
 )
 
 
 class TaskRequest(BaseModel):
-    """Modèle de requête pour l'exécution de tâches."""
+    """Modï¿½le de requï¿½te pour l'exï¿½cution de tï¿½ches."""
     task: str
     user_id: Optional[str] = "anonymous"
 
 
 class TaskResponse(BaseModel):
-    """Modèle de réponse pour l'exécution de tâches."""
+    """Modï¿½le de rï¿½ponse pour l'exï¿½cution de tï¿½ches."""
     result: str
     agent: str = "ppt_agent"
     ppt_path: Optional[str] = None
     download_url: Optional[str] = None
 
 
-# Modèles A2A JSON-RPC
+# Modï¿½les A2A JSON-RPC
 class A2AMessage(BaseModel):
     """Message du protocole A2A."""
     role: str
@@ -116,13 +116,13 @@ class A2AMessage(BaseModel):
 
 
 class A2ATaskParams(BaseModel):
-    """Paramètres de tâche A2A."""
+    """Paramï¿½tres de tï¿½che A2A."""
     id: Optional[str] = None
     message: A2AMessage
 
 
 class A2ARequest(BaseModel):
-    """Requête JSON-RPC A2A."""
+    """Requï¿½te JSON-RPC A2A."""
     jsonrpc: str = "2.0"
     id: Optional[str] = None
     method: str
@@ -130,7 +130,7 @@ class A2ARequest(BaseModel):
 
 
 async def process_a2a_message_streaming(message_text: str, jsonrpc: str, request_id: str, task_id: str, context_id: str):
-    """Traite un message A2A et renvoie des événements SSE au fur et à mesure."""
+    """Traite un message A2A et renvoie des ï¿½vï¿½nements SSE au fur et ï¿½ mesure."""
     import json
     global copilot_client
 
@@ -138,7 +138,7 @@ async def process_a2a_message_streaming(message_text: str, jsonrpc: str, request
     message_id_complete = str(uuid.uuid4())
     artifact_id = str(uuid.uuid4())
 
-    # Envoyer un statut 'working' immédiatement
+    # Envoyer un statut 'working' immï¿½diatement
     status_event = {
         "jsonrpc": jsonrpc,
         "id": request_id,
@@ -159,7 +159,7 @@ async def process_a2a_message_streaming(message_text: str, jsonrpc: str, request
     }
     yield f"data: {json.dumps(status_event)}\n\n"
 
-    # Vérifie que le client Copilot est initialisé
+    # Vï¿½rifie que le client Copilot est initialisï¿½
     if copilot_client is None:
         error_event = {
             "jsonrpc": jsonrpc,
@@ -183,16 +183,16 @@ async def process_a2a_message_streaming(message_text: str, jsonrpc: str, request
         return
 
     try:
-        # Créer une session Copilot pour cette tâche
+        # Crï¿½er une session Copilot pour cette tï¿½che
         session = await copilot_client.create_session({
             "model": "claude-sonnet-4.5",
             "streaming": True,
             "skill_directories": [SKILLS_DIR]
         })
 
-        logger.info(f"? Session A2A créée avec ID : {session.session_id}")
+        logger.info(f"? Session A2A crï¿½ï¿½e avec ID : {session.session_id}")
 
-        # Collecte les fragments de réponse
+        # Collecte les fragments de rï¿½ponse
         response_chunks = []
 
         def handle_event(event):
@@ -201,13 +201,13 @@ async def process_a2a_message_streaming(message_text: str, jsonrpc: str, request
 
         session.on(handle_event)
 
-        # Démarre la tâche en arrière-plan
+        # Dï¿½marre la tï¿½che en arriï¿½re-plan
         task = asyncio.create_task(session.send_and_wait({"prompt": message_text}, timeout=600))
 
-        # Envoi de battements de cœur pendant l'attente
+        # Envoi de battements de cï¿½ur pendant l'attente
         heartbeat_count = 0
         while not task.done():
-            await asyncio.sleep(5)  # vérifie toutes les 5 secondes
+            await asyncio.sleep(5)  # vï¿½rifie toutes les 5 secondes
             heartbeat_count += 1
 
             heartbeat_event = {
@@ -230,15 +230,15 @@ async def process_a2a_message_streaming(message_text: str, jsonrpc: str, request
             }
             yield f"data: {json.dumps(heartbeat_event)}\n\n"
 
-        # Attendre la fin de la tâche et gérer les exceptions
+        # Attendre la fin de la tï¿½che et gï¿½rer les exceptions
         await task
 
-        # Combiner le texte de réponse
+        # Combiner le texte de rï¿½ponse
         response_text = ''.join(response_chunks)
         if not response_text:
             response_text = "PPT generation completed successfully."
 
-        # Envoyer l'artefact avec le résultat
+        # Envoyer l'artefact avec le rï¿½sultat
         artifact_event = {
             "jsonrpc": jsonrpc,
             "id": request_id,
@@ -257,7 +257,7 @@ async def process_a2a_message_streaming(message_text: str, jsonrpc: str, request
         }
         yield f"data: {json.dumps(artifact_event)}\n\n"
 
-        # Envoyer le statut de complétion
+        # Envoyer le statut de complï¿½tion
         complete_event = {
             "jsonrpc": jsonrpc,
             "id": request_id,
@@ -302,21 +302,21 @@ async def process_a2a_message_streaming(message_text: str, jsonrpc: str, request
 
 
 async def process_a2a_message(message_text: str) -> str:
-    """Traite un message A2A et renvoie la réponse (legacy non-streaming)."""
+    """Traite un message A2A et renvoie la rï¿½ponse (legacy non-streaming)."""
     global copilot_client
 
     if copilot_client is None:
         return "Agent not initialized"
 
     try:
-        # Créer une session pour la tâche
+        # Crï¿½er une session pour la tï¿½che
         session = await copilot_client.create_session({
             "model": "claude-sonnet-4.5",
             "streaming": True,
             "skill_directories": [SKILLS_DIR]
         })
 
-        logger.info(f"? Session A2A créée avec ID : {session.session_id}")
+        logger.info(f"? Session A2A crï¿½ï¿½e avec ID : {session.session_id}")
 
         response_chunks = []
 
@@ -337,7 +337,7 @@ async def process_a2a_message(message_text: str) -> str:
 
 
 async def generate_sse_response(jsonrpc: str, request_id: str, task_id: str, context_id: str, result_text: str):
-    """Génère une réponse SSE (Server-Sent Events) pour le protocole A2A."""
+    """Gï¿½nï¿½re une rï¿½ponse SSE (Server-Sent Events) pour le protocole A2A."""
     import json
 
     message_id_working = str(uuid.uuid4())
@@ -405,19 +405,19 @@ async def a2a_jsonrpc_endpoint(request: Request):
     """Endpoint JSON-RPC 2.0 pour le protocole A2A avec streaming SSE."""
     try:
         body = await request.json()
-        logger.info(f"?? Requête A2A : {body.get('method', 'unknown')}")
+        logger.info(f"?? Requï¿½te A2A : {body.get('method', 'unknown')}")
 
         jsonrpc = body.get("jsonrpc", "2.0")
         request_id = body.get("id")
         method = body.get("method", "")
         params = body.get("params", {})
 
-        # Gère plusieurs méthodes A2A
+        # Gï¿½re plusieurs mï¿½thodes A2A
         if method in ["message/send", "message/stream", "tasks/send", "tasks/sendSubscribe"]:
             message = params.get("message", {})
             parts = message.get("parts", [])
 
-            # Agrège le texte des différentes parties du message
+            # Agrï¿½ge le texte des diffï¿½rentes parties du message
             message_text = ""
             for part in parts:
                 if part.get("kind") == "text" or "text" in part:
@@ -426,7 +426,7 @@ async def a2a_jsonrpc_endpoint(request: Request):
             if not message_text:
                 message_text = str(params)
 
-            logger.info(f"?? Traitement de la requête PPT : {message_text[:100]}...")
+            logger.info(f"?? Traitement de la requï¿½te PPT : {message_text[:100]}...")
 
             task_id = params.get("id") or str(uuid.uuid4())
             context_id = params.get("contextId") or str(uuid.uuid4())
@@ -442,7 +442,7 @@ async def a2a_jsonrpc_endpoint(request: Request):
             )
 
         elif method == "tasks/get":
-            # Retourne un statut de tâche "completed" via SSE
+            # Retourne un statut de tï¿½che "completed" via SSE
             task_id = params.get("id", "unknown")
             context_id = params.get("contextId") or str(uuid.uuid4())
 
@@ -464,7 +464,7 @@ async def a2a_jsonrpc_endpoint(request: Request):
             return StreamingResponse(status_sse(), media_type="text/event-stream")
 
         else:
-            # Méthode inconnue - erreur
+            # Mï¿½thode inconnue - erreur
             async def error_sse():
                 import json
                 event = {
@@ -499,7 +499,7 @@ async def a2a_jsonrpc_endpoint(request: Request):
 
 @app.get("/")
 async def root():
-    """Endpoint racine pour vérifier que l'agent est actif."""
+    """Endpoint racine pour vï¿½rifier que l'agent est actif."""
     return {
         "agent": "ppt_agent",
         "status": "running",
@@ -510,7 +510,7 @@ async def root():
 
 @app.get("/health")
 async def health():
-    """Check santé de l'agent."""
+    """Check santï¿½ de l'agent."""
     if copilot_client is None:
         raise HTTPException(status_code=503, detail="Agent not initialized")
     return {"status": "healthy"}
@@ -518,7 +518,7 @@ async def health():
 
 @app.get("/ppt/{filename}")
 async def download_ppt(filename: str):
-    """Télécharge un fichier PPT par son nom."""
+    """Tï¿½lï¿½charge un fichier PPT par son nom."""
     file_path = Path(PPT_DIR) / filename
 
     if not file_path.exists():
@@ -526,7 +526,7 @@ async def download_ppt(filename: str):
 
     allowed_extensions = [".pptx", ".ppt", ".pdf", ".md"]
     if file_path.suffix.lower() not in allowed_extensions:
-        raise HTTPException(status_code=400, detail="Seuls les fichiers de présentation sont autorisés")
+        raise HTTPException(status_code=400, detail="Seuls les fichiers de prï¿½sentation sont autorisï¿½s")
 
     media_types = {
         ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
@@ -565,11 +565,11 @@ async def list_ppts():
 
 @app.post("/task", response_model=TaskResponse)
 async def execute_task(request: TaskRequest):
-    """Exécute une tâche de génération PPT."""
+    """Exï¿½cute une tï¿½che de gï¿½nï¿½ration PPT."""
     if copilot_client is None:
         raise HTTPException(status_code=503, detail="Agent not initialized")
 
-    logger.info(f"?? Tâche de {request.user_id}: {request.task}")
+    logger.info(f"?? Tï¿½che de {request.user_id}: {request.task}")
 
     try:
         session = await copilot_client.create_session({
@@ -578,7 +578,7 @@ async def execute_task(request: TaskRequest):
             "skill_directories": [SKILLS_DIR]
         })
 
-        logger.info(f"? Session créée avec ID : {session.session_id}")
+        logger.info(f"? Session crï¿½ï¿½e avec ID : {session.session_id}")
 
         response_chunks = []
 
@@ -588,7 +588,7 @@ async def execute_task(request: TaskRequest):
 
         session.on(handle_event)
 
-        # Prompt amélioré pour exploiter la compétence PPT
+        # Prompt amï¿½liorï¿½ pour exploiter la compï¿½tence PPT
         enhanced_prompt = f"""
 {request.task}
 
@@ -600,12 +600,12 @@ Please follow the PPT Skill guidelines:
 5. Follow all the requirements specified in the skill documentation
         """
 
-        # Exécution de la tâche avec timeout de 10 minutes
+        # Exï¿½cution de la tï¿½che avec timeout de 10 minutes
         await session.send_and_wait({"prompt": enhanced_prompt}, timeout=600)
 
         response_text = ''.join(response_chunks)
 
-        # Recherche du fichier PPT généré
+        # Recherche du fichier PPT gï¿½nï¿½rï¿½
         ppt_path = None
         download_url = None
         try:
@@ -617,11 +617,11 @@ Please follow the PPT Skill guidelines:
                 latest_ppt = max(ppt_files, key=lambda p: p.stat().st_mtime)
                 ppt_path = str(latest_ppt.absolute())
                 download_url = f"/ppt/{latest_ppt.name}"
-                logger.info(f"?? PPT généré : {ppt_path}")
+                logger.info(f"?? PPT gï¿½nï¿½rï¿½ : {ppt_path}")
         except Exception as e:
-            logger.warning(f"Impossible de déterminer le chemin du PPT : {e}")
+            logger.warning(f"Impossible de dï¿½terminer le chemin du PPT : {e}")
 
-        logger.info(f"? Tâche terminée pour {request.user_id}")
+        logger.info(f"? Tï¿½che terminï¿½e pour {request.user_id}")
 
         return TaskResponse(
             result=response_text if response_text else "PPT generated successfully. Check the ppt folder.",
@@ -631,16 +631,16 @@ Please follow the PPT Skill guidelines:
         )
 
     except Exception as e:
-        logger.error(f"? Erreur lors de l'exécution de la tâche : {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Erreur d'exécution de la tâche : {str(e)}")
+        logger.error(f"? Erreur lors de l'exï¿½cution de la tï¿½che : {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Erreur d'exï¿½cution de la tï¿½che : {str(e)}")
 
 
 @app.get("/.well-known/agent-card.json")
 async def agent_card():
-    """Endpoint Agent Card A2A pour découverte des capacités."""
+    """Endpoint Agent Card A2A pour dï¿½couverte des capacitï¿½s."""
     return JSONResponse({
         "name": "ppt_agent",
-        "description": "Agent spécialisé génération de PPT pour présentations professionnelles avec exemples de code",
+        "description": "Agent spï¿½cialisï¿½ gï¿½nï¿½ration de PPT pour prï¿½sentations professionnelles avec exemples de code",
         "version": "1.0.0",
         "url": "Your PPT Agent URL on Azure Container Apps Endpoint",
         "protocol": "a2a",
@@ -650,10 +650,10 @@ async def agent_card():
         "defaultInputModes": ["text"],
         "defaultOutputModes": ["text"],
 
-        # Mots-clés principaux pour le routage des tâches
+        # Mots-clï¿½s principaux pour le routage des tï¿½ches
         "primaryKeywords": ["ppt", "powerpoint", "presentation", "slides", "slide deck", "create ppt", "create a ppt", "make slides"],
 
-        # Compétences au niveau racine
+        # Compï¿½tences au niveau racine
         "skills": [
             {
                 "id": "ppt_generation",
@@ -690,7 +690,7 @@ async def agent_card():
             }
         ],
 
-        # Informations de capacités supplémentaires
+        # Informations de capacitï¿½s supplï¿½mentaires
         "capabilities": {
             "streaming": True,
             "pushNotifications": False,
@@ -698,6 +698,8 @@ async def agent_card():
         },
 
         # Informations du fournisseur
+        # Auteur d'origine : Kinfey Lo
+        # Traduction franÃ§aise, sÃ©curitÃ© et conformitÃ© : Pierre-Henry ELECTROMS Barge (https://github.com/electroms)
         "provider": {
             "organization": "Kinfey Lo",
             "url": "https://github.com/kinfey"
@@ -708,7 +710,7 @@ async def agent_card():
 if __name__ == "__main__":
     import uvicorn
 
-    logger.info(f"?? Démarrage de l'agent PPT sur le port {AGENT_PORT}")
+    logger.info(f"?? Dï¿½marrage de l'agent PPT sur le port {AGENT_PORT}")
     uvicorn.run(
         app,
         host="0.0.0.0",

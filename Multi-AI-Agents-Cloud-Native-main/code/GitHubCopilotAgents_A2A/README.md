@@ -340,4 +340,8 @@ Ce projet fait partie du dépôt [Multi-AI-Agents-Cloud-Native](https://github.c
 
 ## Auteur
 
-**Kinfey Lo** - [GitHub](https://github.com/kinfey)
+**Kinfey Lo** - [GitHub](https://github.com/kinfey) (auteur d'origine)
+
+## Contributeur
+
+**Pierre-Henry ELECTROMS Barge** - [GitHub](https://github.com/electroms) : traduction française du projet, maintien en sécurité et en conformité.
